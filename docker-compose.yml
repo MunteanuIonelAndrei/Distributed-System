@@ -1,0 +1,98 @@
+version: '3.8'
+
+services:
+  db-device:
+    image: postgres
+    ports:
+      - "5403:5432"
+    environment:
+      POSTGRES_DB: dockerDevice
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - C:\Users\andre\Desktop\tema3SD1\Volumes\device:/var/lib/postgresql/data
+
+  db-person:
+    image: postgres
+    ports:
+      - "5404:5432"
+    environment:
+      POSTGRES_DB: dockerPerson
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - C:\Users\andre\Desktop\tema3SD1\Volumes\person:/var/lib/postgresql/data
+
+  db-monitoring:
+    image: postgres
+    ports:
+      - "5405:5432"
+    environment:
+      POSTGRES_DB: dockerMonitoring
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - C:\Users\andre\Desktop\tema3SD1\Volumes\monotoring:/var/lib/postgresql/data
+
+  springdevice:
+    build: ./Device
+    ports:
+      - "8071:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_RABBITMQ_HOST: kangaroo.rmq.cloudamqp.com
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: opgepqju
+      SPRING_RABBITMQ_PASSWORD: f8GGpLfi66wK_dU1KKZ7NgLV9w5MRpLy
+      SPRING_RABBITMQ_VIRTUAL_HOST: opgepqju
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-device:5432/dockerDevice
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+
+  springperson:
+    build: ./Person/spring-demo
+    ports:
+      - "8072:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-person:5432/dockerPerson
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+
+  springchat:
+    build: ./demo
+    ports:
+      - "8074:8080"
+    environment:
+      SERVER_PORT: 8080
+    
+
+  monitoring:
+    build: ./Monitoring
+    ports:
+      - "8073:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_RABBITMQ_HOST: kangaroo.rmq.cloudamqp.com
+      SPRING_RABBITMQ_PORT: 5672
+      SPRING_RABBITMQ_USERNAME: opgepqju
+      SPRING_RABBITMQ_PASSWORD: f8GGpLfi66wK_dU1KKZ7NgLV9w5MRpLy
+      SPRING_RABBITMQ_VIRTUAL_HOST: opgepqju
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db-monitoring:5432/dockerMonitoring
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin
+
+  react-demo:
+    build: ./Frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - springdevice
+      - springperson
+      - monitoring
+volumes:
+  db-service1-data:
+  db-service2-data:
+  db-service3-data:
+
+
